@@ -1,0 +1,9 @@
+{
+  "name": "telegram-bot-supabase",
+  "version": "1.0.0",
+  "description": "Telegram Bot using Vercel + Supabase",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  }
+}
+
