@@ -1,3 +1,5 @@
+const { saveMessage } = require('../supabase');
+
 module.exports = async (req, res) => {
   try {
     if (req.method !== "POST") {
@@ -6,10 +8,19 @@ module.exports = async (req, res) => {
 
     const body = req.body;
     const message = body?.message;
-    const chatId = message?.chat?.id;
-    const text = message?.text || "";
 
-    if (chatId) {
+    if (!message) {
+      return res.status(200).json({ ok: true, message: "No message found" });
+    }
+
+    const chatId = message.chat?.id;
+    const text = message.text || "";
+
+    if (chatId && text) {
+      // Save message to Supabase
+      await saveMessage(chatId, text);
+
+      // Reply back to Telegram
       await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: {
@@ -22,10 +33,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    res.status(200).json({ ok: true });
-
+    return res.status(200).json({ ok: true });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err.message });
+    console.error("Webhook error:", err);
+    return res.status(500).json({ error: err.message });
   }
 };
